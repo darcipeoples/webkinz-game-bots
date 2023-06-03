@@ -1,7 +1,7 @@
 # Webkinz Lunch Letters Python bot
 ## Level 1 v.s. Level 137
-<img src="./play-level-1.gif" width="640" />
-<img src="./play-level-137.gif" width="640" />
+<img src="./play-level-1.gif" width="320" />
+<img src="./play-level-137.gif" width="320" />
 
 ## Features
 - Plays infinitely, restarting after each game over
@@ -24,8 +24,6 @@
    2. Put your Webkinz window into the top left corner of your screen
 4. Run all cells of the notebook
    * Press the '1' key to exit the program.
-
----
 
 ## Appendix
 ### TODOs (Darci)
