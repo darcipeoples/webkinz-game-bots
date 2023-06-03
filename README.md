@@ -28,9 +28,6 @@
 ---
 
 ## Appendix
-### Notes
-- 
-
 ### TODOs (Darci)
 - Utils
   - Make a way for people to test if their window is in the right place before running
