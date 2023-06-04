@@ -3,6 +3,9 @@
 ### Lunch Letters
 <img src="./lunch-letters/play-level-137.gif" width="320" />
 
+### Where's Wacky
+<img src="./wheres-wacky/play-level-20.gif" width="320" />
+
 ### Operation Gumball
 
 ### Atlantiles
@@ -12,8 +15,6 @@
 ### Goober's Lab
 
 ### Picnic
-
-### Where's Wacky
 
 ### Wacky Zingos
 

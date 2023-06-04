@@ -1,10 +1,10 @@
 # Webkinz Where's Wacky Python bot
-## Level 1 v.s. Level 137
-<img src="./play.gif" width="320" />
+## Demo
+<img src="./play-level-20.gif" width="320" />
 
 ## Features
 - Plays infinitely, restarting after each game over
-- Stops before hitting the score cap of 30k
+- Attempts to stop before hitting the score cap of 30k
 
 ## Appendix
 ### TODOs (Darci)
