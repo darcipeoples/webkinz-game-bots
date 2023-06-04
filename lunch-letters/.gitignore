@@ -1,10 +1,6 @@
 # Project specific
-no-commit/
-.DS_Store
-letters/raw/
-letters/**/all/
-letters/**/centered/deduped/
-letters/**/avg/cropped/
+letters/*
+!letters/masks/*/centered/avg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

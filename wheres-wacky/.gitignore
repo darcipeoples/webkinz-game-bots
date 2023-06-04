@@ -1,6 +1,4 @@
 # Project specific
-.DS_Store
-no-commit/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
