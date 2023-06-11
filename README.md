@@ -6,9 +6,10 @@
 ### Where's Wacky
 <img src="./wheres-wacky/play-level-20.gif" width="320" />
 
-### Operation Gumball
-
 ### Atlantiles
+<img src="./atlantiles/play.gif" width="320" />
+
+### Operation Gumball
 
 ### Booger Gets an A
 
