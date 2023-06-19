@@ -9,9 +9,11 @@
 ### Atlantiles
 <img src="./atlantiles/play.gif" width="320" />
 
+### Booger Gets an A
+<img src="./booger-gets-an-a/play.gif" width="320" />
+
 ### Operation Gumball
 
-### Booger Gets an A
 
 ### Goober's Lab
 
