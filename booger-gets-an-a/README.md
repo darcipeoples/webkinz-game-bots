@@ -6,5 +6,3 @@
 - Plays infinitely, restarting after each game over
 
 ## TODOs
-- Play infinitely (restart on game over)
-- Migrate to use common utils
