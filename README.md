@@ -35,4 +35,5 @@
 - Figure out requirements.txt
   - Ensure a fresh clone/install works
 - Ensure Windows compatibility
-- Add screen type and get into game logic to utils
+- Use util's screen type util in bots
+- Make get into game logic util

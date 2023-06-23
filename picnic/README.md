@@ -3,6 +3,7 @@
 <img src="./play.gif" width="320" />
 
 ## Features
-- Plays infinitely, restarting after each game over
 
 ## TODOs
+- Add ability to restart after game over
+- Make more performant somehow so it can pass hard
