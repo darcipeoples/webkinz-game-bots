@@ -12,12 +12,13 @@
 ### Booger Gets an A
 <img src="./booger-gets-an-a/play.gif" width="320" />
 
+### Picnic
+<img src="./picnic/play.gif" width="320" />
+
 ### Operation Gumball
 
 
 ### Goober's Lab
-
-### Picnic
 
 ### Wacky Zingos
 

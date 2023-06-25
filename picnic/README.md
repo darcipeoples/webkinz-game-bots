@@ -5,5 +5,4 @@
 ## Features
 
 ## TODOs
-- Add ability to restart after game over
-- Make more performant somehow so it can pass hard
+- Make turns more consistent. Could try running on desktop
