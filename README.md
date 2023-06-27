@@ -15,10 +15,10 @@
 ### Picnic
 <img src="./picnic/play.gif" width="320" />
 
-### Operation Gumball
-
-
 ### Goober's Lab
+<img src="./goobers-lab/play.gif" width="320" />
+
+### Operation Gumball
 
 ### Wacky Zingos
 
@@ -37,4 +37,4 @@
   - Ensure a fresh clone/install works
 - Ensure Windows compatibility
 - Use util's screen type util in bots
-- Make get into game logic util
+- Make get into game logic util1
