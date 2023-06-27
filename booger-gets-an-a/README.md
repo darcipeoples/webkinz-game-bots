@@ -1,5 +1,5 @@
-# Webkinz Goober Gets an A Python bot
-## Demo: Level 1 versus Level 137
+# Webkinz Booger Gets an A Python bot
+## Demo
 <img src="./play.gif" width="320" />
 
 ## Features
