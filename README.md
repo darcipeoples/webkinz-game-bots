@@ -19,6 +19,7 @@
 <img src="./goobers-lab/play.gif" width="320" />
 
 ### Operation Gumball
+<img src="./operation-gumball/play.gif" width="320" />
 
 ### Wacky Zingos
 
