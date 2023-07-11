@@ -1,0 +1,909 @@
+{
+  "3": {
+    "False": {
+      "remain": 720,
+      "guess": "012",
+      "scores": {
+        "(0, 0)": {
+          "remain": 210,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 1)": {
+          "remain": 252,
+          "guess": "134",
+          "scores": {
+            "(0, 0)": {
+              "remain": 80,
+              "guess": "506",
+              "scores": {
+                "(0, 0)": {
+                  "remain": 12,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(0, 1)": {
+                  "remain": 21,
+                  "guess": "725",
+                  "scores": {
+                    "(0, 0)": {
+                      "remain": 2,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(0, 1)": {
+                      "remain": 4,
+                      "guess": "268",
+                      "scores": {
+                        "(0, 0)": {
+                          "remain": 1,
+                          "guess": "970",
+                          "scores": {
+                            "(3, 0)": {
+                              "remain": 1,
+                              "guess": "",
+                              "scores": {}
+                            }
+                          }
+                        },
+                        "(0, 1)": {
+                          "remain": 1,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(2, 0)": {
+                          "remain": 1,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(3, 0)": {
+                          "remain": 1,
+                          "guess": "",
+                          "scores": {}
+                        }
+                      }
+                    },
+                    "(0, 2)": {
+                      "remain": 3,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(0, 3)": {
+                      "remain": 1,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(1, 0)": {
+                      "remain": 4,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(1, 1)": {
+                      "remain": 3,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(1, 2)": {
+                      "remain": 1,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(2, 0)": {
+                      "remain": 2,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(3, 0)": {
+                      "remain": 1,
+                      "guess": "",
+                      "scores": {}
+                    }
+                  }
+                },
+                "(0, 2)": {
+                  "remain": 11,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(0, 3)": {
+                  "remain": 1,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(1, 0)": {
+                  "remain": 15,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(1, 1)": {
+                  "remain": 10,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(1, 2)": {
+                  "remain": 2,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(2, 0)": {
+                  "remain": 7,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(3, 0)": {
+                  "remain": 1,
+                  "guess": "",
+                  "scores": {}
+                }
+              }
+            },
+            "(0, 1)": {
+              "remain": 75,
+              "guess": "",
+              "scores": {}
+            },
+            "(0, 2)": {
+              "remain": 19,
+              "guess": "",
+              "scores": {}
+            },
+            "(0, 3)": {
+              "remain": 1,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 0)": {
+              "remain": 45,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 1)": {
+              "remain": 18,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 2)": {
+              "remain": 2,
+              "guess": "",
+              "scores": {}
+            },
+            "(2, 0)": {
+              "remain": 11,
+              "guess": "",
+              "scores": {}
+            },
+            "(3, 0)": {
+              "remain": 1,
+              "guess": "",
+              "scores": {}
+            }
+          }
+        },
+        "(0, 2)": {
+          "remain": 63,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 3)": {
+          "remain": 2,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 0)": {
+          "remain": 126,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 1)": {
+          "remain": 42,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 2)": {
+          "remain": 3,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 0)": {
+          "remain": 21,
+          "guess": "",
+          "scores": {}
+        },
+        "(3, 0)": {
+          "remain": 1,
+          "guess": "",
+          "scores": {}
+        }
+      }
+    },
+    "True": {}
+  },
+  "4": {
+    "False": {
+      "remain": 5040,
+      "guess": "0123",
+      "scores": {
+        "(0, 0)": {
+          "remain": 360,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 1)": {
+          "remain": 1440,
+          "guess": "1456",
+          "scores": {
+            "(0, 0)": {
+              "remain": 54,
+              "guess": "",
+              "scores": {}
+            },
+            "(0, 1)": {
+              "remain": 378,
+              "guess": "4278",
+              "scores": {
+                "(0, 1)": {
+                  "remain": 78,
+                  "guess": "8507",
+                  "scores": {
+                    "(0, 1)": {
+                      "remain": 22,
+                      "guess": "6892",
+                      "scores": {
+                        "(0, 1)": {
+                          "remain": 4,
+                          "guess": "3749",
+                          "scores": {
+                            "(0, 4)": {
+                              "remain": 1,
+                              "guess": "7934",
+                              "scores": {
+                                "(4, 0)": {
+                                  "remain": 1,
+                                  "guess": "",
+                                  "scores": {}
+                                }
+                              }
+                            },
+                            "(1, 3)": {
+                              "remain": 1,
+                              "guess": "",
+                              "scores": {}
+                            },
+                            "(2, 2)": {
+                              "remain": 1,
+                              "guess": "",
+                              "scores": {}
+                            },
+                            "(4, 0)": {
+                              "remain": 1,
+                              "guess": "",
+                              "scores": {}
+                            }
+                          }
+                        },
+                        "(0, 2)": {
+                          "remain": 2,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(0, 3)": {
+                          "remain": 1,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(0, 4)": {
+                          "remain": 1,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(1, 0)": {
+                          "remain": 2,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(1, 1)": {
+                          "remain": 2,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(1, 2)": {
+                          "remain": 2,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(1, 3)": {
+                          "remain": 2,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(2, 0)": {
+                          "remain": 1,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(2, 1)": {
+                          "remain": 1,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(2, 2)": {
+                          "remain": 2,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(3, 0)": {
+                          "remain": 1,
+                          "guess": "",
+                          "scores": {}
+                        },
+                        "(4, 0)": {
+                          "remain": 1,
+                          "guess": "",
+                          "scores": {}
+                        }
+                      }
+                    },
+                    "(0, 2)": {
+                      "remain": 16,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(0, 3)": {
+                      "remain": 6,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(0, 4)": {
+                      "remain": 2,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(1, 0)": {
+                      "remain": 9,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(1, 1)": {
+                      "remain": 17,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(1, 2)": {
+                      "remain": 5,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(1, 3)": {
+                      "remain": 3,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(2, 0)": {
+                      "remain": 6,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(2, 1)": {
+                      "remain": 3,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(2, 2)": {
+                      "remain": 2,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(3, 0)": {
+                      "remain": 2,
+                      "guess": "",
+                      "scores": {}
+                    },
+                    "(4, 0)": {
+                      "remain": 1,
+                      "guess": "",
+                      "scores": {}
+                    }
+                  }
+                },
+                "(0, 2)": {
+                  "remain": 94,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(0, 3)": {
+                  "remain": 32,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(0, 4)": {
+                  "remain": 4,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(1, 0)": {
+                  "remain": 30,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(1, 1)": {
+                  "remain": 61,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(1, 2)": {
+                  "remain": 32,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(1, 3)": {
+                  "remain": 5,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(2, 0)": {
+                  "remain": 19,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(2, 1)": {
+                  "remain": 12,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(2, 2)": {
+                  "remain": 4,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(3, 0)": {
+                  "remain": 6,
+                  "guess": "",
+                  "scores": {}
+                },
+                "(4, 0)": {
+                  "remain": 1,
+                  "guess": "",
+                  "scores": {}
+                }
+              }
+            },
+            "(0, 2)": {
+              "remain": 369,
+              "guess": "",
+              "scores": {}
+            },
+            "(0, 3)": {
+              "remain": 91,
+              "guess": "",
+              "scores": {}
+            },
+            "(0, 4)": {
+              "remain": 6,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 0)": {
+              "remain": 126,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 1)": {
+              "remain": 222,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 2)": {
+              "remain": 83,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 3)": {
+              "remain": 6,
+              "guess": "",
+              "scores": {}
+            },
+            "(2, 0)": {
+              "remain": 57,
+              "guess": "",
+              "scores": {}
+            },
+            "(2, 1)": {
+              "remain": 31,
+              "guess": "",
+              "scores": {}
+            },
+            "(2, 2)": {
+              "remain": 5,
+              "guess": "",
+              "scores": {}
+            },
+            "(3, 0)": {
+              "remain": 11,
+              "guess": "",
+              "scores": {}
+            },
+            "(4, 0)": {
+              "remain": 1,
+              "guess": "",
+              "scores": {}
+            }
+          }
+        },
+        "(0, 2)": {
+          "remain": 1260,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 3)": {
+          "remain": 264,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 4)": {
+          "remain": 9,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 0)": {
+          "remain": 480,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 1)": {
+          "remain": 720,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 2)": {
+          "remain": 216,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 3)": {
+          "remain": 8,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 0)": {
+          "remain": 180,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 1)": {
+          "remain": 72,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 2)": {
+          "remain": 6,
+          "guess": "",
+          "scores": {}
+        },
+        "(3, 0)": {
+          "remain": 24,
+          "guess": "",
+          "scores": {}
+        },
+        "(4, 0)": {
+          "remain": 1,
+          "guess": "",
+          "scores": {}
+        }
+      }
+    }
+  },
+  "5": {
+    "False": {
+      "remain": 30240,
+      "guess": "01234",
+      "scores": {
+        "(0, 0)": {
+          "remain": 120,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 1)": {
+          "remain": 2400,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 2)": {
+          "remain": 7800,
+          "guess": "10567",
+          "scores": {
+            "(0, 1)": {
+              "remain": 552,
+              "guess": "",
+              "scores": {}
+            },
+            "(0, 2)": {
+              "remain": 1776,
+              "guess": "",
+              "scores": {}
+            },
+            "(0, 3)": {
+              "remain": 1680,
+              "guess": "",
+              "scores": {}
+            },
+            "(0, 4)": {
+              "remain": 372,
+              "guess": "",
+              "scores": {}
+            },
+            "(0, 5)": {
+              "remain": 24,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 0)": {
+              "remain": 150,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 1)": {
+              "remain": 864,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 2)": {
+              "remain": 1176,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 3)": {
+              "remain": 348,
+              "guess": "",
+              "scores": {}
+            },
+            "(1, 4)": {
+              "remain": 30,
+              "guess": "",
+              "scores": {}
+            },
+            "(2, 0)": {
+              "remain": 168,
+              "guess": "",
+              "scores": {}
+            },
+            "(2, 1)": {
+              "remain": 348,
+              "guess": "",
+              "scores": {}
+            },
+            "(2, 2)": {
+              "remain": 168,
+              "guess": "",
+              "scores": {}
+            },
+            "(2, 3)": {
+              "remain": 14,
+              "guess": "",
+              "scores": {}
+            },
+            "(3, 0)": {
+              "remain": 72,
+              "guess": "",
+              "scores": {}
+            },
+            "(3, 1)": {
+              "remain": 36,
+              "guess": "",
+              "scores": {}
+            },
+            "(3, 2)": {
+              "remain": 9,
+              "guess": "",
+              "scores": {}
+            },
+            "(4, 0)": {
+              "remain": 12,
+              "guess": "",
+              "scores": {}
+            },
+            "(5, 0)": {
+              "remain": 1,
+              "guess": "",
+              "scores": {}
+            }
+          }
+        },
+        "(0, 3)": {
+          "remain": 6400,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 4)": {
+          "remain": 1325,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 5)": {
+          "remain": 44,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 0)": {
+          "remain": 600,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 1)": {
+          "remain": 3600,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 2)": {
+          "remain": 4200,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 3)": {
+          "remain": 1100,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 4)": {
+          "remain": 45,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 0)": {
+          "remain": 600,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 1)": {
+          "remain": 1200,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 2)": {
+          "remain": 450,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 3)": {
+          "remain": 20,
+          "guess": "",
+          "scores": {}
+        },
+        "(3, 0)": {
+          "remain": 200,
+          "guess": "",
+          "scores": {}
+        },
+        "(3, 1)": {
+          "remain": 100,
+          "guess": "",
+          "scores": {}
+        },
+        "(3, 2)": {
+          "remain": 10,
+          "guess": "",
+          "scores": {}
+        },
+        "(4, 0)": {
+          "remain": 25,
+          "guess": "",
+          "scores": {}
+        },
+        "(5, 0)": {
+          "remain": 1,
+          "guess": "",
+          "scores": {}
+        }
+      }
+    },
+    "True": {}
+  },
+  "6": {
+    "False": {
+      "remain": 151200,
+      "guess": "001234",
+      "scores": {
+        "(0, 1)": {
+          "remain": 2880,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 2)": {
+          "remain": 23280,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 3)": {
+          "remain": 37920,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 4)": {
+          "remain": 15540,
+          "guess": "",
+          "scores": {}
+        },
+        "(0, 5)": {
+          "remain": 1280,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 0)": {
+          "remain": 720,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 1)": {
+          "remain": 11040,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 2)": {
+          "remain": 25920,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 3)": {
+          "remain": 13680,
+          "guess": "",
+          "scores": {}
+        },
+        "(1, 4)": {
+          "remain": 1370,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 0)": {
+          "remain": 1680,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 1)": {
+          "remain": 7200,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 2)": {
+          "remain": 5400,
+          "guess": "",
+          "scores": {}
+        },
+        "(2, 3)": {
+          "remain": 680,
+          "guess": "",
+          "scores": {}
+        },
+        "(3, 0)": {
+          "remain": 960,
+          "guess": "",
+          "scores": {}
+        },
+        "(3, 1)": {
+          "remain": 1200,
+          "guess": "",
+          "scores": {}
+        },
+        "(3, 2)": {
+          "remain": 220,
+          "guess": "",
+          "scores": {}
+        },
+        "(4, 0)": {
+          "remain": 180,
+          "guess": "",
+          "scores": {}
+        },
+        "(4, 1)": {
+          "remain": 40,
+          "guess": "",
+          "scores": {}
+        },
+        "(5, 0)": {
+          "remain": 10,
+          "guess": "",
+          "scores": {}
+        }
+      }
+    },
+    "True": {}
+  }
+}
