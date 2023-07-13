@@ -41,7 +41,7 @@ def compare_codes(a, b):
             count1[int(dig1)] += 1
             count2[int(dig2)] += 1
     red = sum(map(min, count1, count2))
-    return int(green), int(red)
+    return green, red
 
 def calc_entropy_distribution(word, possible):
     initial_count = len(possible)
@@ -50,22 +50,13 @@ def calc_entropy_distribution(word, possible):
     for p in possible:
         score = compare_codes(p, word)
         if score not in distribution:
-        #     distribution[score] = {'new_possible': []}
-        # distribution[score]['new_possible'].append(p)
-            distribution[score] = {'freq': 0}
-        distribution[score]['freq'] += 1
-    for score, info in distribution.items():
-        # new_possible = info['new_possible']
-        # freq = len(new_possible)
-        freq = info['freq']
+            distribution[score] = []
+        distribution[score].append(p)
+    for score, new_possible in distribution.items():
+        freq = len(new_possible)
         prob = freq/initial_count
         info = math.log2(1/prob)
         expected_info += prob * info
-        # distribution[score]['freq'] = freq
-        distribution[score]['prob'] = prob
-        distribution[score]['info'] = info
-        distribution[score]['pinfo'] = prob * info
-        # distribution[score]['new_possible'] = []
     return {'expected_info': round(expected_info, 12), 'distribution': distribution}
 
 def calc_expected_info(word, possible):
@@ -97,30 +88,52 @@ def calc_worst_elims(word, possible):
 # E.g. [000, 001, 002, 010, 011, 100, 101, 110, 111] -> [000, 001, 001, 010, 011, 011, 010, 001, 000] -> [000, 001, 010, 011] -> [000, 001, 011]
 # Useful for deduping options for the next guess (first, second)
 def dedupe_codes_to_patterns(guesses, codes):
-    guess_chars = set(''.join(guesses))
-    # guess_chars = set(guesses)
-    all_unused_chars = sorted([str(x) for x in range(10) if str(x) not in guess_chars])
-    new_codes = defaultdict(list)
+    guess_chars = dict()
+    for guess in guesses:
+        for c in guess:
+            guess_chars[c] = c
+    unused_chars = [str(x) for x in range(10) if str(x) not in guess_chars]
+    code_patterns = set()
+    deduped_codes = []
     for code in codes:
-        unused_chars = all_unused_chars[:]
-        char_map = defaultdict(int)
-        new_code = ''
+        char_map = guess_chars.copy()
+        unused_idx = 0
+        last_pattern_c = None
+        is_ascending = True
+        code_pattern = ''
         for c in code:
-            # If the digit is in the OG guess, keep it as is
-            if c in guess_chars:
-                new_code += c
-                continue
-            # If the digit is brand new, assign it a new value using unused_chars
             if c not in char_map:
-                char_map[c] = unused_chars.pop(0)
-            # If digit isn't in OG guess, use it's mapped value
-            new_code += char_map[c]
-        new_codes[new_code].append(code)
-    # TODO: are we able to return non ascending for second guesses?
-    new_codes = list([cs[0] for cs in new_codes.values()])
-    if len(guesses) == 0:
-        new_codes = [x for x in new_codes if ''.join(sorted(x)) == x]
-    return new_codes
+                char_map[c] = unused_chars[unused_idx]
+                unused_idx += 1
+            code_pattern += char_map[c]
+
+            # If no prev. guesses, track if ascending
+            if guesses == []:
+                if last_pattern_c is not None and c < last_pattern_c:
+                    is_ascending = False
+                    break
+                last_pattern_c = c
+        # If no prev guesses, only keep codes in asc. order
+        if guesses == [] and not is_ascending:
+            continue
+
+        if code_pattern not in code_patterns:
+            code_patterns.add(code_pattern)
+            deduped_codes.append(code)
+
+    return deduped_codes
+
+def test_dedupe_codes_to_patterns():
+    # print(dedupe_codes_to_patterns(["708"], ['117', '210', '345', '510', '558', '654']))
+    # print(dedupe_codes_to_patterns(["012"], ['117', '210', '345', '510', '558', '654']))
+    # print(dedupe_codes_to_patterns(["708", "059"], ['117', '210', '345', '510', '558', '654']))
+    # print(dedupe_codes_to_patterns(["001234"], ["05678", "08765"]))
+    # print(dedupe_codes_to_patterns(["53052"], ["97237"]))
+    assert dedupe_codes_to_patterns(["708"], ['117', '210', '345', '510', '558', '654']) == ['117', '210', '345', '558']
+    assert dedupe_codes_to_patterns(["012"], ['117', '210', '345', '510', '558', '654']) == ['117', '210', '345', '510', '558']
+    assert dedupe_codes_to_patterns(["708", "059"], ['117', '210', '345', '510', '558', '654']) == ['117', '210', '345', '510', '558', '654']
+    assert dedupe_codes_to_patterns(["001234"], ["05678", "08765"]) == ['05678']
+    assert dedupe_codes_to_patterns(["53052"], ["97237"]) == ['97237']
 
 def filter_possible_unused(possible, unused, attempt, score):
     # TODO: should we be removing p from possible??
@@ -162,7 +175,8 @@ def calc_best_next_guess(search_set, max_search_time, possible):
 
     search_start = time.time()
 
-    with Pool(16) as p:
+    with Pool(4) as p:
+        # TODO: instead of returning just the expected info, also return the score distribution.
         for i, result in enumerate(p.imap(partial(calc_expected_info, possible=possible), search_set, chunksize=1)):
             if result is None or break_program:
                 debug("Broke program, cancel calc_best_next_guess")
@@ -193,68 +207,73 @@ def calc_best_next_guess(search_set, max_search_time, possible):
     
     return suggestion
 
+# TODO: since we're using dedupe list to just put possible before rest of unused, can prob make a better impl that uses possible as a set
+# TODO: dicts are also like ordered sets. Prob should be using ordered sets instead of hopeful lists
 def dedupe_list(seq):
     seen = set()
-    return [x for x in seq if not (x in seen or seen.add(x))]
+    return filter(lambda x: not (x in seen or seen.add(x)), seq)
 
-def _calc_tree(num_digits, has_repeats, guesses, responses, depth, max_depth):
-    if depth <= 2:
-        print(f'Calculating _calc_tree({num_digits}, {has_repeats}, {guesses}, {responses}, {depth}, {max_depth})')
+def _calc_tree(num_digits, has_repeats, guesses, responses, depth, max_depth, possible, unused):
+    # if num_digits == 5 and not has_repeats and max_depth == 100 and len(responses) >= 1 and responses[0] in [(0,1), (0,0), (0, 2), (0,3), (0,4), (0,5), (1,0)]:
+    #     return {'remain': -1}
+    CHECKPOINT_DEPTH = 2
+    if depth <= CHECKPOINT_DEPTH:
+        print(f'Calculating _calc_tree({num_digits}, {has_repeats}, {guesses}, {responses}, {depth}, {max_depth}, {len(possible)}, {len(unused)})')
     if depth >= max_depth:
         return {}
     tree = {} # TODO: can we read in already calculated bit to keep building?
 
-    # Set remain & calculate possible
-    # TODO: can we pass possible down instead of recalc?
-    possible, unused = calc_initial_possible_unused(num_digits, has_repeats)
-    new_possible = possible[:]
-    new_unused = unused[:]
-    for guess, response in zip(guesses, responses):
-        new_possible, new_unused = filter_possible_unused(new_possible, new_unused, guess, response)
-    remain = len(new_possible)
-    tree['remain'] = remain
+    # Set remain
+    tree['remain'] = len(possible)
 
     # Set guess
     if depth == 0:
         guess = get_best_first_guess(num_digits, has_repeats, 'entropy')
+    elif num_digits == 6 and not has_repeats and depth == 1 and len(responses) == 1:
+        second_guesses = {
+            (0,1):'562178',(0,2):'562177',(0,3):'560347',(0,4):'560043',(0,5):'156043',(1,0):'056789',(1,1):'051567',(1,2):'002156',(1,3):'002356',(1,4):'052146',
+            (2,0):'051367',(2,1):'051267',(2,2):'015136',(2,3):'012536',(3,0):'051367',(3,1):'015267',(3,2):'051326',(4,0):'051367',(4,1):'015267',(5,0):'050067'
+        }
+        guess = second_guesses[responses[0]]
     else:
-        search_set = dedupe_list(new_possible + new_unused)
+        search_set = dedupe_list(possible + unused)
         search_set = dedupe_codes_to_patterns(guesses, search_set)
-        guess = calc_best_next_guess(search_set, None, new_possible)
+        guess = calc_best_next_guess(search_set, None, possible)
     tree['guess'] = guess
 
     # Set scores
-    results = calc_entropy_distribution(guess, new_possible)
+    results = calc_entropy_distribution(guess, possible)
+    new_unused = [x for x in unused if x != guess] # TODO: faster way?
     tree['scores'] = {}
-    for score, info in sorted(results['distribution'].items()):
+    for score, new_possible in sorted(results['distribution'].items()):
         score_str = str(score)
-        freq = info['freq']
+        freq = len(new_possible)
         if score == (num_digits, 0):
             if (freq != 1):
-                print(f"WARNING: remaining ({freq}) != 1 for (N, 0) response: {num_digits}, {has_repeats}, {guesses}, {responses}, {depth}")  
+                print(f"WARNING: new_possible ({freq}) != 1 for (N, 0) response: {num_digits}, {has_repeats}, {guesses}, {responses}, {depth}, {len(possible)}, {len(unused)}, {len(new_possible)}, {len(new_unused)}")  
             tree['scores'][score_str] = {'remain': freq}
             continue
         if depth + 1 >= max_depth:
             tree['scores'][score_str] = {'remain': freq}
             continue
-        tree['scores'][score_str] = _calc_tree(num_digits, has_repeats, guesses + [guess], responses + [score], depth + 1, max_depth)
+        tree['scores'][score_str] = _calc_tree(num_digits, has_repeats, guesses + [guess], responses + [score], depth + 1, max_depth, new_possible, new_unused)
         if tree['scores'][score_str]['remain'] != freq:
-            print(f"WARNING: tree['scores'][score_str]['remain'] ({tree['scores'][score_str]['remain']}) !=  freq ({freq}): {num_digits}, {has_repeats}, {guesses}, {responses}, {depth}, {score_str}")  
+            print(f"WARNING: tree['scores'][score_str]['remain'] ({tree['scores'][score_str]['remain']}) !=  freq ({freq}): {num_digits}, {has_repeats}, {guesses}, {responses}, {depth}, {score_str}, {len(possible)}, {len(unused)}, {len(new_possible)}, {len(new_unused)}")  
     
-    # if depth <= 2:
-    #     print(f'Calculated _calc_tree({num_digits}, {has_repeats}, {guesses}, {responses}, {depth}, {max_depth})')
-    #     with open(f"temp-output-{num_digits}-{has_repeats}-{max_depth}-{depth}-[{', '.join([str(x) for x in zip(guesses, responses)])}]", "w+") as f:
-    #         f.write(json.dumps(tree, indent=2))
+    if depth <= CHECKPOINT_DEPTH:
+        print(f'Calculated _calc_tree({num_digits}, {has_repeats}, {guesses}, {responses}, {depth}, {max_depth}, {len(possible)}, {len(unused)}, {len(new_possible)}, {len(new_unused)})')
+        with open(f"temp-output-{num_digits}-{has_repeats}-{max_depth}-{depth}-[{', '.join([str(x) for x in zip(guesses, responses)])}]", "w+") as f:
+            f.write(json.dumps(tree, indent=2))
     return tree
 
 def calc_tree(num_digits, has_repeats, guesses, responses, max_depth):
     tree = {}
-    has_repeats_str = str(has_repeats)
-    num_digits_str = str(num_digits)
-    if num_digits not in tree:
-        tree[num_digits_str] = {}
-    if has_repeats_str not in tree:
-        tree[num_digits_str][has_repeats_str] = _calc_tree(num_digits, has_repeats, guesses, responses, depth=0, max_depth=max_depth)
+    possible, unused = calc_initial_possible_unused(num_digits, has_repeats)
+    for guess, response in zip(guesses, responses):
+        possible, unused = filter_possible_unused(possible, unused, guess, response)
+
+    tree[str(num_digits)] = {}
+    tree[str(num_digits)][str(has_repeats)] = _calc_tree(num_digits, has_repeats, guesses, responses, 0, max_depth, possible, unused)
     return tree
 
 def calc_save_tree(num_digits, has_repeats, max_depth):
@@ -265,8 +284,18 @@ def calc_save_tree(num_digits, has_repeats, max_depth):
     # print(pretty_json)
 
 def main():
+    # test_dedupe_codes_to_patterns()
     # TODO: See if there is a way to further dedupe the search_set
-    calc_save_tree(num_digits=3, has_repeats=False, max_depth=3)
+    calc_save_tree(num_digits=3, has_repeats=True, max_depth=100)
+
+    # possible, unused = calc_initial_possible_unused(4, False)
+    # guess = calc_best_next_guess(unused, None, possible)
+    # print(guess)
+
+    # result = calc_entropy_distribution("001234", possible)
+    # print(result['expected_info'])
+    # for score, new_possible in result['distribution'].items():
+    #     print(score, len(new_possible), new_possible[:10])
 
 if __name__ == '__main__':
     main()
