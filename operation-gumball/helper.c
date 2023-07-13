@@ -3,38 +3,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_CODE_LENGTH 10
+#define MAX_CODE_LENGTH 6
 
 typedef struct {
   int green;
   int red;
 } Score;
-
-// typedef struct {
-//   int score;
-//   int freq;
-// } ScoreFrequency;
-
-typedef struct {
-  int freq;
-  double prob;
-  double info;
-  double pinfo;
-} ScoreInfo;
-
-typedef struct {
-  int remain;
-  char guess[MAX_CODE_LENGTH + 1];
-  ScoreInfo scores[MAX_CODE_LENGTH][MAX_CODE_LENGTH];
-} TreeNode;
-
-typedef struct {
-  int num_digits;
-  int has_repeats;
-  int max_depth;
-  char guesses[MAX_CODE_LENGTH][MAX_CODE_LENGTH + 1];
-  Score responses[MAX_CODE_LENGTH];
-} CalculationData;
 
 void get_best_first_guess(int num_digits, int has_repeats, char *guess) {
   if (num_digits == 3) {
@@ -97,29 +71,104 @@ Score compare_codes(const char *a, const char *b) {
 //   }
 // }
 
-double calc_expected_info(const char *word, const char **possible,
-                          int possible_count) {
-  int initial_count = possible_count;
-  double expected_info = 0;
-  int distribution[MAX_CODE_LENGTH][MAX_CODE_LENGTH] = {0};
+typedef struct {
+  const char **values;
+  int count;
+} CodeList;
+
+typedef struct {
+  Score score;
+  const char **values;
+  int count;
+} RemainInfo;
+
+typedef struct {
+  double expected_info;
+  RemainInfo *distribution;
+  int score_count;
+} Result;
+
+Result *calc_score_distribution(const char *guess, const char **possible,
+                                int possible_count) {
+  int num_digits = strlen(guess);
+  RemainInfo **distribution = malloc(MAX_CODE_LENGTH * sizeof(RemainInfo *));
+  for (int i = 0; i < MAX_CODE_LENGTH; i++) {
+    distribution[i] = malloc(MAX_CODE_LENGTH * sizeof(RemainInfo));
+    for (int j = 0; j < MAX_CODE_LENGTH; j++) {
+      RemainInfo *info = &distribution[i][j];
+      info->count = 0;
+      info->values = malloc(possible_count * sizeof(char *));
+      info->score.green = i;
+      info->score.green = j;
+
+      // TODO (A): make a copy of possible elements or just point to them?
+      // for (int k = 0; k < possible_count; k++) {
+      //   distribution[i][j].values[k] = malloc(num_digits * sizeof(char));
+      // }
+    }
+  }
 
   for (int i = 0; i < possible_count; i++) {
     const char *p = possible[i];
-    Score score = compare_codes(p, word);
+    Score score = compare_codes(p, guess);
+    RemainInfo *info = &distribution[score.green][score.red];
+    info->values[info->count++] = p;
+  }
+
+  Result *result = malloc(sizeof(Result));
+  result->distribution =
+      malloc(MAX_CODE_LENGTH * MAX_CODE_LENGTH * sizeof(RemainInfo));
+  result->score_count = 0;
+  result->expected_info = 0;
+  for (int i = 0; i < MAX_CODE_LENGTH; i++) {
+    for (int j = 0; j < MAX_CODE_LENGTH; j++) {
+      RemainInfo *info = &distribution[i][j];
+      int freq = info->count;
+      if (freq > 0) {
+        double prob = (double)freq / possible_count;
+        double log_prob = log2(1 / prob);
+        result->expected_info += prob * log_prob;
+        // Shrink the remaining array
+        // TODO (A): if malloc above, need to free unused ones
+        info->values = realloc(info->values, freq * sizeof(char *));
+        result->distribution[result->score_count++] = *info;
+      } else {
+        free(info->values); // TODO (A): if add malloc above, free values too
+        info->values = 0;
+      }
+    }
+    free(distribution[i]);
+    distribution[i] = 0;
+  }
+  free(distribution);
+  distribution = 0;
+  result->distribution =
+      realloc(result->distribution, result->score_count * sizeof(RemainInfo));
+
+  return result;
+}
+
+double calc_expected_info(const char *guess, const char **possible,
+                          int possible_count) {
+  int distribution[MAX_CODE_LENGTH][MAX_CODE_LENGTH] = {0};
+  for (int i = 0; i < possible_count; i++) {
+    const char *p = possible[i];
+    Score score = compare_codes(p, guess);
+
     distribution[score.green][score.red]++;
   }
 
+  double expected_info = 0;
   for (int i = 0; i < MAX_CODE_LENGTH; i++) {
     for (int j = 0; j < MAX_CODE_LENGTH; j++) {
       int freq = distribution[i][j];
       if (freq > 0) {
-        double prob = (double)freq / initial_count;
+        double prob = (double)freq / possible_count;
         double log_prob = log2(1 / prob);
         expected_info += prob * log_prob;
       }
     }
   }
-
   // TODO: round to nearest 10th decimal?
   // return round(expected_info * 1000000000000) / 1000000000000;
   return expected_info;
@@ -157,12 +206,6 @@ char **dedupe_codes_to_patterns(const char **guesses, int guess_count,
     const char *code = codes[i];
     char char_map[10];
     memcpy(char_map, guess_chars, sizeof(guess_chars));
-    // if (i == 0) {
-    //     for  (int k = 0; i < 10; i++) {
-    //         printf("i=%d, guess_chars=%d, char_map=%d\n", i, guess_chars[i],
-    //         char_map[i]);
-    //     }
-    // }
 
     char code_pattern[MAX_CODE_LENGTH + 1] = {0};
 
@@ -173,11 +216,9 @@ char **dedupe_codes_to_patterns(const char **guesses, int guess_count,
       char c = code[j];
       if (!char_map[c - '0']) {
         char_map[c - '0'] = unused_chars[unused_idx++];
-        // printf("code=%s, %c -> %c\n", code, c, char_map[c - '0']);
       }
       code_pattern[j] = char_map[c - '0'];
-      // If no previous guesses, only keep code_patterns that are in ascending
-      // order
+      // If no prev. guesses, only keep code_patterns in ascending order
       if (guess_count == 0) {
         if (prev_char != '\0' && code_pattern[j] < prev_char) {
           is_ascending = 0;
@@ -198,9 +239,6 @@ char **dedupe_codes_to_patterns(const char **guesses, int guess_count,
         break;
       }
     }
-
-    // printf("i=%d, code=%s, code_pattern=%s, is_duplicate=%d\n", i, code,
-    // code_pattern, is_duplicate);
 
     if (!is_duplicate) {
       code_patterns[code_patterns_count] =
@@ -333,6 +371,27 @@ void calc_best_next_guess(const char **search_set, int search_set_count,
          best_idx, search_set[best_idx], best_expected_info);
 }
 
+typedef struct {
+  int freq;
+  double prob;
+  double info;
+  double pinfo;
+} ScoreInfo;
+
+typedef struct {
+  int remain;
+  char guess[MAX_CODE_LENGTH + 1];
+  ScoreInfo scores[MAX_CODE_LENGTH][MAX_CODE_LENGTH];
+} TreeNode;
+
+typedef struct {
+  int num_digits;
+  int has_repeats;
+  int max_depth;
+  char guesses[MAX_CODE_LENGTH][MAX_CODE_LENGTH + 1];
+  Score responses[MAX_CODE_LENGTH];
+} CalculationData;
+
 // void calc_tree_helper(const CalculationData *data, TreeNode *tree, int
 // depth)
 // {
@@ -411,14 +470,16 @@ void calc_best_next_guess(const char **search_set, int search_set_count,
 //   free(json);
 // }
 
-void print_string_array(char **string_array, int string_count,
-                        int max_to_print) {
+void print_string_array(const char **string_array, int string_count,
+                      int max_to_print) {
   int num_to_print = fmin(max_to_print, string_count);
-  printf(" (%d/%d elements) [", num_to_print, string_count);
+  printf(" (%-7d items)\t[", string_count);
   for (int i = 0; i < num_to_print; i++) {
     printf("%s", string_array[i]);
     if (i < num_to_print - 1) {
       printf(", ");
+    } else if (num_to_print < string_count) {
+      printf("...");
     }
   }
   printf("]\n");
@@ -453,7 +514,7 @@ void test_dedupe_codes_by_pattern() {
                                (const char **)codes, num_codes, &result_count);
 
   printf("Deduplicated codes");
-  print_string_array(result, result_count, 10);
+  print_string_array((const char **)result, result_count, 10);
 }
 
 int main() {
@@ -463,7 +524,7 @@ int main() {
   //   Score score = compare_codes(a, b);
   //   printf("(%d, %d)\n", score.green, score.red);
 
-  int num_digits = 5;
+  int num_digits = 6;
   int has_repeats = 0;
 
   //   char *guess = (char *)malloc((num_digits + 1) * sizeof(char));
@@ -476,20 +537,41 @@ int main() {
 
   PossibleUnused poss_unused =
       calc_initial_possible_unused(num_digits, has_repeats);
+  char **possible = poss_unused.possible;
+  char **unused = poss_unused.unused;
+  int possible_count = poss_unused.possible_count;
+  int unused_count = poss_unused.unused_count;
 
-  char suggestion[MAX_CODE_LENGTH];
+  printf("UNUSED");
+  print_string_array((const char **)unused, unused_count, 10);
 
-  //   printf("UNUSED");
-  //   print_string_array(poss_unused.unused, poss_unused.unused_count, 10);
+  printf("POSSIBLE");
+  print_string_array((const char **)possible, possible_count, 10);
 
-  //   printf("POSSIBLE");
-  //   print_string_array(poss_unused.possible, poss_unused.possible_count, 10);
+  // int deduped_count = 0;
+  // char **deduped_codes = dedupe_codes_to_patterns(
+  //     NULL, 0, (const char **)unused, unused_count, &deduped_count);
+  // printf("DEDUPED");
+  // print_string_array(deduped_codes, deduped_count, 10);
 
-  calc_best_next_guess((const char **)poss_unused.unused,
-                       poss_unused.unused_count, 0,
-                       (const char **)poss_unused.possible,
-                       poss_unused.possible_count, suggestion);
-  printf("%s\n", suggestion);
+  // char suggestion[MAX_CODE_LENGTH];
+  // calc_best_next_guess((const char **)deduped_codes, deduped_count, 0,
+  //                      (const char **)possible, possible_count, suggestion);
+  // printf("%s\n", suggestion);
+
+  double expected_info =
+      calc_expected_info("001234", (const char **)possible, possible_count);
+  printf("%f\n", expected_info);
+  Result *result = calc_score_distribution("001234", (const char **)possible,
+                                           possible_count);
+  printf("%f\n", result->expected_info);
+  int score_count = result->score_count;
+  for (int i = 0; i < score_count; i++) {
+    RemainInfo remainInfo = result->distribution[i];
+    Score score = remainInfo.score;
+    printf("(%d, %d): ", score.green, score.red);
+    print_string_array(remainInfo.values, remainInfo.count, 10);
+  }
 
   return 0;
 }
