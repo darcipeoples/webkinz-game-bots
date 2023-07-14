@@ -46,11 +46,9 @@ def compare_codes(a, b):
 def calc_entropy_distribution(word, possible):
     initial_count = len(possible)
     expected_info = 0
-    distribution = dict()
+    distribution = defaultdict(list)
     for p in possible:
         score = compare_codes(p, word)
-        if score not in distribution:
-            distribution[score] = []
         distribution[score].append(p)
     for score, new_possible in distribution.items():
         freq = len(new_possible)
@@ -84,9 +82,10 @@ def calc_worst_elims(word, possible):
         worst_elims = min(worst_elims, num_elims)
     return worst_elims
 
-# Given a list of codes and previous guesses, will deduplicate them into ascending ABC paterns (convert to pattern, dedupe)
-# E.g. [000, 001, 002, 010, 011, 100, 101, 110, 111] -> [000, 001, 001, 010, 011, 011, 010, 001, 000] -> [000, 001, 010, 011] -> [000, 001, 011]
-# Useful for deduping options for the next guess (first, second)
+# Given a list prev. guesses and potential next guesses, dedupe those with the same pattern.
+# E.g. [234] [567, 619, 233, 211] -> {015: [567, 619], 233: [233], 200: [211]} -> [567, 233, 211]
+# E.g. [] [987, 234, 336, 991, 388, 112, 555, 888, 737, 181] -> {012: [987, 234], 001: [336, 991], 011: [388, 112], 000: [555, 888], 010: [737, 181]} -> [987, 336, 388, 555]
+# See test_dedupe_codes_to_patterns for more test cases
 def dedupe_codes_to_patterns(guesses, codes):
     guess_chars = dict()
     for guess in guesses:
@@ -109,10 +108,10 @@ def dedupe_codes_to_patterns(guesses, codes):
 
             # If no prev. guesses, track if ascending
             if guesses == []:
-                if last_pattern_c is not None and c < last_pattern_c:
+                if last_pattern_c is not None and char_map[c] < last_pattern_c:
                     is_ascending = False
                     break
-                last_pattern_c = c
+                last_pattern_c = char_map[c]
         # If no prev guesses, only keep codes in asc. order
         if guesses == [] and not is_ascending:
             continue
@@ -124,21 +123,25 @@ def dedupe_codes_to_patterns(guesses, codes):
     return deduped_codes
 
 def test_dedupe_codes_to_patterns():
-    # print(dedupe_codes_to_patterns(["708"], ['117', '210', '345', '510', '558', '654']))
-    # print(dedupe_codes_to_patterns(["012"], ['117', '210', '345', '510', '558', '654']))
-    # print(dedupe_codes_to_patterns(["708", "059"], ['117', '210', '345', '510', '558', '654']))
-    # print(dedupe_codes_to_patterns(["001234"], ["05678", "08765"]))
-    # print(dedupe_codes_to_patterns(["53052"], ["97237"]))
-    assert dedupe_codes_to_patterns(["708"], ['117', '210', '345', '510', '558', '654']) == ['117', '210', '345', '558']
-    assert dedupe_codes_to_patterns(["012"], ['117', '210', '345', '510', '558', '654']) == ['117', '210', '345', '510', '558']
-    assert dedupe_codes_to_patterns(["708", "059"], ['117', '210', '345', '510', '558', '654']) == ['117', '210', '345', '510', '558', '654']
-    assert dedupe_codes_to_patterns(["001234"], ["05678", "08765"]) == ['05678']
-    assert dedupe_codes_to_patterns(["53052"], ["97237"]) == ['97237']
+    tests = [
+        {'input': (["708"], ['117', '210', '345', '510', '558', '654']), 'output': ['117', '210', '345', '558']},
+        {'input': (["012"], ['117', '210', '345', '510', '558', '654']), 'output': ['117', '210', '345', '510', '558']},
+        {'input': (["708", "059"], ['117', '210', '345', '510', '558', '654']), 'output': ['117', '210', '345', '510', '558', '654']},
+        {'input': (["001234"], ["05678", "08765"]), 'output': ['05678']},
+        {'input': (["53052"], ["97237"]), 'output': ['97237']},
+        {'input': (['234'], ['567', '619', '233', '211']), 'output': ['567', '233', '211']},
+        {'input': ([], ['987', '234', '336', '991', '388', '112', '555', '888', '737', '181']), 'output': ['987', '336', '388', '555']}
+    ]
+    for test in tests:
+        input = test['input']
+        actual = dedupe_codes_to_patterns(*input)
+        expected = test['output']
+        assert actual == expected, f"dedupe_codes_to_patterns({input}) = {actual} != {expected}"
 
 def filter_possible_unused(possible, unused, attempt, score):
     # TODO: should we be removing p from possible??
-    possible = [p for p in possible if compare_codes(p, attempt) == score and p != attempt]
-    # possible = [p for p in possible if compare_codes(p, attempt) == score]
+    # possible = [p for p in possible if compare_codes(p, attempt) == score and p != attempt]
+    possible = [p for p in possible if compare_codes(p, attempt) == score]
     if attempt in unused:
         unused.remove(attempt)
     return possible, unused
@@ -187,7 +190,7 @@ def calc_best_next_guess(search_set, max_search_time, possible):
                 best_value = max(results)
                 best_idx = results.index(best_value)
                 suggestion = search_set[best_idx]
-                debug(f"iter {i}/{len(search_set)} ({i/len(search_set)*100:.1f}%, {time.time() - search_start:.1f}s): best_idx = {best_idx}, best guess = '{suggestion}', expected info = {best_value}")
+                debug(f"iter {i}/{len(search_set)}({len(possible)}) ({i/len(search_set)*100:.1f}%, {time.time() - search_start:.1f}s): best_idx = {best_idx}, best guess = '{suggestion}', expected info = {best_value}")
                 # with open(temp_filename, "w+") as f:
                 #     f.write('guess, expected_info\n')
                 #     f.write('\n'.join([f"{x[0]}, {x[1]}" for x in zip(search_set, results)]))
@@ -286,7 +289,8 @@ def calc_save_tree(num_digits, has_repeats, max_depth):
 def main():
     # test_dedupe_codes_to_patterns()
     # TODO: See if there is a way to further dedupe the search_set
-    calc_save_tree(num_digits=3, has_repeats=True, max_depth=100)
+    # calc_save_tree(num_digits=4, has_repeats=False, max_depth=100)
+    test_dedupe_codes_to_patterns()
 
     # possible, unused = calc_initial_possible_unused(4, False)
     # guess = calc_best_next_guess(unused, None, possible)
