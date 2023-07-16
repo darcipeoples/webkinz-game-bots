@@ -125,40 +125,17 @@ def dedupe_codes_to_patterns(guesses, codes):
 # This narrows down the search set by using info about the possible set.
 # E.g. if the possible codes = [887878, 777787, 878778, ...], the code can only contain a subset of {7, 8}
 # So, guessing a code that has neither 7 nor 8 is useless.
-# And the answer won't contain {0,1,2,3,4,5,6,9}. So we can use those as padding, 
-# but we only need to use {0} for padding since 000087 gives the same info as 123487.
+# And the answer won't contain {0,1,2,3,4,5,6,9}, so we can exclude any codes with them.
 def dedupe_codes_using_patterns_possible(search_set, possible):
-    if len(search_set) == len(possible):
+    if len(search_set) == len(possible) and search_set == possible:
         return search_set
-    possible_chars = dict()
+    possible_chars = set()
     for p in possible:
         for c in p:
-            possible_chars[c] = c
+            possible_chars.add(c)
         if len(possible_chars) == 10:
             return search_set
-    impossible_chars = [str(x) for x in range(10) if str(x) not in possible_chars]
-    code_patterns = set()
-    deduped_codes = []
-    for code in search_set:
-        char_map = possible_chars.copy()
-        code_pattern = ''
-        has_a_possible_char = False
-        for c in code:
-            if c not in char_map:
-                char_map[c] = impossible_chars[0] # Use the same impossible char for padding.
-            code_pattern += char_map[c]
-            
-            if c in possible_chars:
-                has_a_possible_char = True
-        # If guess doesn't contain any of the possible characters, it won't give us any info
-        if not has_a_possible_char:
-            continue
-
-        if code_pattern not in code_patterns:
-            code_patterns.add(code_pattern)
-            deduped_codes.append(code)
-
-    return deduped_codes
+    return [code for code in search_set if all([c in possible_chars for c in code])]
 
 def test_dedupe_codes_using_patterns_possible():
     tests = [
@@ -267,9 +244,20 @@ def dedupe_list(seq):
     return filter(lambda x: not (x in seen or seen.add(x)), seq)
 
 def _calc_tree(num_digits, has_repeats, guesses, responses, depth, max_depth, possible, unused):
-    # if num_digits == 5 and not has_repeats and max_depth == 100 and len(responses) >= 1 and responses[0] in [(0,1), (0,0), (0, 2), (0,3), (0,4), (0,5), (1,0)]:
-    #     return {'remain': -1}
+    if len(responses) >= 1:
+        if num_digits == 5 and max_depth == 100:
+            if not has_repeats and responses[0] in [(0,0),(0,1),(0,2)]:
+                return {'remain': -1} # 5-False-100
+            if has_repeats and responses[0] in [(0,0),(0,1)]:
+                return {'remain': -1} # 5-True-100
+        if num_digits == 6 and max_depth == 3:
+            if not has_repeats and responses[0] in [(0,1),(0,2)]:
+                return {'remain': -1} # 6-False-3
+            if has_repeats and responses[0] in [(0,0)]:
+                return {'remain': -1} # 6-True-3
     CHECKPOINT_DEPTH = 2
+    if num_digits == 6:
+        CHECKPOINT_DEPTH = 4
     if depth <= CHECKPOINT_DEPTH:
         print(f'Calculating _calc_tree({num_digits}, {has_repeats}, {guesses}, {responses}, {depth}, {max_depth}, {len(possible)}, {len(unused)})')
     if depth >= max_depth:
@@ -348,7 +336,7 @@ def calc_save_tree(num_digits, has_repeats, max_depth):
 
 def main():
     # TODO: See if there is a way to further dedupe the search_set
-    calc_save_tree(num_digits=3, has_repeats=False, max_depth=100)
+    calc_save_tree(num_digits=4, has_repeats=False, max_depth=100)
 
 if __name__ == '__main__':
     main()
