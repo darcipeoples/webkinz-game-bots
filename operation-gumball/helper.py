@@ -122,6 +122,54 @@ def dedupe_codes_to_patterns(guesses, codes):
 
     return deduped_codes
 
+# This narrows down the search set by using info about the possible set.
+# E.g. if the possible codes = [887878, 777787, 878778, ...], the code can only contain a subset of {7, 8}
+# So, guessing a code that has neither 7 nor 8 is useless.
+# And the answer won't contain {0,1,2,3,4,5,6,9}. So we can use those as padding, 
+# but we only need to use {0} for padding since 000087 gives the same info as 123487.
+def dedupe_codes_using_patterns_possible(search_set, possible):
+    if len(search_set) == len(possible):
+        return search_set
+    possible_chars = dict()
+    for p in possible:
+        for c in p:
+            possible_chars[c] = c
+        if len(possible_chars) == 10:
+            return search_set
+    impossible_chars = [str(x) for x in range(10) if str(x) not in possible_chars]
+    code_patterns = set()
+    deduped_codes = []
+    for code in search_set:
+        char_map = possible_chars.copy()
+        code_pattern = ''
+        has_a_possible_char = False
+        for c in code:
+            if c not in char_map:
+                char_map[c] = impossible_chars[0] # Use the same impossible char for padding.
+            code_pattern += char_map[c]
+            
+            if c in possible_chars:
+                has_a_possible_char = True
+        # If guess doesn't contain any of the possible characters, it won't give us any info
+        if not has_a_possible_char:
+            continue
+
+        if code_pattern not in code_patterns:
+            code_patterns.add(code_pattern)
+            deduped_codes.append(code)
+
+    return deduped_codes
+
+def test_dedupe_codes_using_patterns_possible():
+    tests = [
+        {'input': (["778", "878", "012", "007", "008", "018", "801"], ["778", "878"]), 'output': ['778', '878', '007', '008', '801']},
+    ]
+    for test in tests:
+        input = test['input']
+        actual = dedupe_codes_using_patterns_possible(*input)
+        expected = test['output']
+        assert actual == expected, f"dedupe_codes_using_patterns_possible({input}) = {actual} != {expected}"
+
 def test_dedupe_codes_to_patterns():
     tests = [
         {'input': (["708"], ['117', '210', '345', '510', '558', '654']), 'output': ['117', '210', '345', '558']},
@@ -165,6 +213,8 @@ def unique_chars(s):
 
 # TODO: if following time limit, need to shuffle the search set
 def calc_best_next_guess(search_set, max_search_time, possible):
+    if 1 <= len(possible) <= 2:
+        return possible[0]
     if max_search_time is not None:
         debug(f"Searching ({max_search_time:.1f}s limit)...")
     else:
@@ -238,16 +288,26 @@ def _calc_tree(num_digits, has_repeats, guesses, responses, depth, max_depth, po
             (2,0):'051367',(2,1):'051267',(2,2):'015136',(2,3):'012536',(3,0):'051367',(3,1):'015267',(3,2):'051326',(4,0):'051367',(4,1):'015267',(5,0):'050067'
         }
         guess = second_guesses[responses[0]]
+    elif num_digits == 6 and has_repeats and depth == 1 and len(responses) == 1:
+        second_guesses = {
+            (0,0):'556677',(0,1):'556677',(0,2):'552167',(0,3):'562113',(0,4):'156001',(0,5):'123350',(0,6):'123300',(1,0):'561577',(1,1):'051678',
+            (1,2):'050267',(1,3):'010156',(1,4):'052113',(1,5):'012340',(2,0):'051678',(2,1):'050267',(2,2):'050036',(2,3):'012124',(2,4):'010034',
+            (3,0):'051367',(3,1):'015136',(3,2):'012124',(3,3):'012024',(4,0):'015226',(4,1):'012215',(4,2):'010034',(5,0):'011356',(6,0):'000000'
+        }
+        guess = second_guesses[responses[0]]
+    elif 1 <= len(possible) <= 2:
+        guess = possible[0]
     else:
         search_set = dedupe_list(possible + unused)
         search_set = dedupe_codes_to_patterns(guesses, search_set)
+        search_set = dedupe_codes_using_patterns_possible(search_set, possible)
         guess = calc_best_next_guess(search_set, None, possible)
     tree['guess'] = guess
+    new_unused = [x for x in unused if x != guess] # TODO: faster way?
 
     # Set scores
-    results = calc_entropy_distribution(guess, possible)
-    new_unused = [x for x in unused if x != guess] # TODO: faster way?
     tree['scores'] = {}
+    results = calc_entropy_distribution(guess, possible)
     for score, new_possible in sorted(results['distribution'].items()):
         score_str = str(score)
         freq = len(new_possible)
@@ -278,7 +338,7 @@ def calc_tree(num_digits, has_repeats, guesses, responses, max_depth):
     tree[str(num_digits)] = {}
     tree[str(num_digits)][str(has_repeats)] = _calc_tree(num_digits, has_repeats, guesses, responses, 0, max_depth, possible, unused)
     return tree
-
+    
 def calc_save_tree(num_digits, has_repeats, max_depth):
     tree = calc_tree(num_digits, has_repeats, [], [], max_depth)
     pretty_json = json.dumps(tree, indent=2)
@@ -287,19 +347,8 @@ def calc_save_tree(num_digits, has_repeats, max_depth):
     # print(pretty_json)
 
 def main():
-    # test_dedupe_codes_to_patterns()
     # TODO: See if there is a way to further dedupe the search_set
-    # calc_save_tree(num_digits=4, has_repeats=False, max_depth=100)
-    test_dedupe_codes_to_patterns()
-
-    # possible, unused = calc_initial_possible_unused(4, False)
-    # guess = calc_best_next_guess(unused, None, possible)
-    # print(guess)
-
-    # result = calc_entropy_distribution("001234", possible)
-    # print(result['expected_info'])
-    # for score, new_possible in result['distribution'].items():
-    #     print(score, len(new_possible), new_possible[:10])
+    calc_save_tree(num_digits=3, has_repeats=False, max_depth=100)
 
 if __name__ == '__main__':
     main()
