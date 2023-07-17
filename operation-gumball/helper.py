@@ -127,7 +127,8 @@ def dedupe_codes_to_patterns(guesses, codes):
 # This narrows down the search set by using info about the possible set.
 # E.g. if the possible codes = [887878, 777787, 878778, ...], the code can only contain a subset of {7, 8}
 # So, guessing a code that has neither 7 nor 8 is useless.
-# And the answer won't contain {0,1,2,3,4,5,6,9}, so we can exclude any codes with them.
+# And the answer won't contain {0,1,2,3,4,5,6,9}, so we can just includes codes with {0}.
+# E.g. 007788 and 117788 give the same info.
 def dedupe_codes_using_patterns_possible(search_set, possible):
     if len(search_set) == len(possible) and search_set == possible:
         return search_set
@@ -137,7 +138,39 @@ def dedupe_codes_using_patterns_possible(search_set, possible):
             possible_chars.add(c)
         if len(possible_chars) == 10:
             return search_set
-    return [code for code in search_set if all([c in possible_chars for c in code])]
+    impossible_chars = [str(x) for x in range(10) if str(x) not in possible_chars]
+    code_patterns = set()
+    deduped_codes = []
+    has_a_possible_char = False
+    for code in search_set:
+        code_pattern = ''
+        for c in code:
+            if c not in possible_chars:
+                code_pattern += impossible_chars[0]
+            else:
+                code_pattern += c
+                has_a_possible_char = True
+        if not has_a_possible_char:
+            continue
+
+        if code_pattern not in code_patterns:
+            code_patterns.add(code_pattern)
+            deduped_codes.append(code)
+
+    return deduped_codes
+
+# Only includes codes that contain possible letters.
+# [UNUSED] WARNING: causes ever-so-slightly worse average guesses, though calculation is faster.
+def dedupe_codes_only_possible_chars(search_set, possible):
+    if len(search_set) == len(possible) and search_set == possible:
+        return search_set
+    possible_chars = set()
+    for p in possible:
+        for c in p:
+            possible_chars.add(c)
+        if len(possible_chars) == 10:
+            return search_set
+    return [code for code in search_set if all([x in possible_chars for x in code])]
 
 def test_dedupe_codes_using_patterns_possible():
     tests = [
@@ -349,14 +382,13 @@ def print_strategy_stats(filename, num_digits):
 
 def main():
     # TODO: See if there is a way to further dedupe the search_set
-    # calc_save_tree(num_digits=4, has_repeats=False, max_depth=100)
+    # calc_save_tree(num_digits=4, has_repeats=True, max_depth=100)
 
-    num_digits = 5
-    has_repeats = False
-    max_depth = 100
-
-    filename = f'strategies/output-{num_digits}-{has_repeats}-{max_depth}.json'
-    print_strategy_stats(filename, num_digits)
+    # max_depth = 100
+    # num_digits = 4
+    # has_repeats = True
+    # filename = f'strategies/output-{num_digits}-{has_repeats}-{max_depth}-entropy.json'
+    # print_strategy_stats(filename, num_digits)
 
 if __name__ == '__main__':
     main()
