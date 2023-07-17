@@ -1,6 +1,7 @@
 # Project specific
 saved-entropies/
 saved/
+temp-*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
