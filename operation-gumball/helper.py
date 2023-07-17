@@ -6,6 +6,8 @@ from collections import defaultdict
 from multiprocessing import Pool
 from functools import partial
 
+import numpy as np
+
 verbose = True
 break_program = False
 
@@ -334,9 +336,27 @@ def calc_save_tree(num_digits, has_repeats, max_depth):
         f.write(pretty_json)
     # print(pretty_json)
 
+def print_strategy_stats(filename, num_digits):
+    with open(filename) as f:
+        lines = f.readlines()
+    soln_lines = [x for x in lines if '"({}, 0)": {{'.format(num_digits) in x]
+    soln_guesses = [x.find(x.strip())//4-1 for x in soln_lines]
+    print(filename)
+    print("Count:\t\t", len(soln_guesses))
+    print("Average:\t", np.mean(soln_guesses))
+    print("Std. Dev.:\t", np.std(soln_guesses))
+    print("Distribution:\t", dict(enumerate(np.bincount(soln_guesses))))
+
 def main():
     # TODO: See if there is a way to further dedupe the search_set
-    calc_save_tree(num_digits=4, has_repeats=False, max_depth=100)
+    # calc_save_tree(num_digits=4, has_repeats=False, max_depth=100)
+
+    num_digits = 5
+    has_repeats = False
+    max_depth = 100
+
+    filename = f'strategies/output-{num_digits}-{has_repeats}-{max_depth}.json'
+    print_strategy_stats(filename, num_digits)
 
 if __name__ == '__main__':
     main()
