@@ -240,7 +240,7 @@ def calc_best_next_guess(search_set, max_search_time, possible):
 
     search_start = time.time()
 
-    with Pool(4) as p:
+    with Pool(16) as p:
         # TODO: instead of returning just the expected info, also return the score distribution.
         for i, result in enumerate(p.imap(partial(calc_expected_info, possible=possible), search_set, chunksize=1)):
             if result is None or break_program:
@@ -278,15 +278,12 @@ def dedupe_list(seq):
     seen = set()
     return filter(lambda x: not (x in seen or seen.add(x)), seq)
 
+STRAT = None
 def _calc_tree(num_digits, has_repeats, guesses, responses, depth, max_depth, possible, unused):
+    global STRAT
     if len(responses) >= 1:
-        if num_digits == 5 and max_depth == 100:
-            if not has_repeats and responses[0] in [(0,0),(0,1),(0,2)]:
-                return {'remain': -1} # 5-False-100
-            if has_repeats and responses[0] in [(0,0),(0,1)]:
-                return {'remain': -1} # 5-True-100
         if num_digits == 6 and max_depth == 3:
-            if not has_repeats and responses[0] in [(0,1),(0,2)]:
+            if not has_repeats and responses[0] in [(0,1),(0,2),(0,3),(0,4),(0,5),(1,0),(1,1),(1,2)]:
                 return {'remain': -1} # 6-False-3
             if has_repeats and responses[0] in [(0,0)]:
                 return {'remain': -1} # 6-True-3
@@ -303,28 +300,41 @@ def _calc_tree(num_digits, has_repeats, guesses, responses, depth, max_depth, po
     tree['remain'] = len(possible)
 
     # Set guess
-    if depth == 0:
-        guess = get_best_first_guess(num_digits, has_repeats, 'entropy')
-    elif num_digits == 6 and not has_repeats and depth == 1 and len(responses) == 1:
-        second_guesses = {
-            (0,1):'562178',(0,2):'562177',(0,3):'560347',(0,4):'560043',(0,5):'156043',(1,0):'056789',(1,1):'051567',(1,2):'002156',(1,3):'002356',(1,4):'052146',
-            (2,0):'051367',(2,1):'051267',(2,2):'015136',(2,3):'012536',(3,0):'051367',(3,1):'015267',(3,2):'051326',(4,0):'051367',(4,1):'015267',(5,0):'050067'
-        }
-        guess = second_guesses[responses[0]]
-    elif num_digits == 6 and has_repeats and depth == 1 and len(responses) == 1:
-        second_guesses = {
-            (0,0):'556677',(0,1):'556677',(0,2):'552167',(0,3):'562113',(0,4):'156001',(0,5):'123350',(0,6):'123300',(1,0):'561577',(1,1):'051678',
-            (1,2):'050267',(1,3):'010156',(1,4):'052113',(1,5):'012340',(2,0):'051678',(2,1):'050267',(2,2):'050036',(2,3):'012124',(2,4):'010034',
-            (3,0):'051367',(3,1):'015136',(3,2):'012124',(3,3):'012024',(4,0):'015226',(4,1):'012215',(4,2):'010034',(5,0):'011356',(6,0):'000000'
-        }
-        guess = second_guesses[responses[0]]
-    elif 1 <= len(possible) <= 2:
-        guess = possible[0]
+    guess = None
+    # if depth == 0:
+    #     guess = get_best_first_guess(num_digits, has_repeats, 'entropy')
+
+    if guess is None and STRAT is not None:
+        # TODO: finish this. Should read the best guesses from the JSON, if available
+        substrat = STRAT[str(num_digits)][str(has_repeats)]
+        known_guess = True
+        for code, response in zip(guesses, responses):
+            str_response = str(response)
+            if "guess" in substrat and substrat["guess"] == code:
+                if "scores" in substrat and str_response in substrat["scores"]:
+                    substrat = substrat["scores"][str_response]
+                    continue
+            known_guess = False
+            break
+        if known_guess:
+            if 'guess' in substrat:
+                guess = substrat['guess']
+                print(f"\t\tSUCCESS:\tFound pre-calculated guess for {list(zip(guesses, responses))}: {guess}")
+            else:
+                print(f"\t\tWARNING:\tGuess not in substrat for {list(zip(guesses, responses))}")
+        else:
+            print(f"\t\tWARNING:\tNo known_guess for{list(zip(guesses, responses))} ")
     else:
-        search_set = dedupe_list(possible + unused)
-        search_set = dedupe_codes_to_patterns(guesses, search_set)
-        search_set = dedupe_codes_using_patterns_possible(search_set, possible)
-        guess = calc_best_next_guess(search_set, None, possible)
+        print(f"\t\tERROR:\tSTRAT is None")
+
+    if guess is None:
+        if 1 <= len(possible) <= 2:
+            guess = possible[0]
+        else:
+            search_set = dedupe_list(possible + unused)
+            search_set = dedupe_codes_to_patterns(guesses, search_set)
+            search_set = dedupe_codes_using_patterns_possible(search_set, possible)
+            guess = calc_best_next_guess(search_set, None, possible)
     tree['guess'] = guess
     new_unused = [x for x in unused if x != guess] # TODO: faster way?
 
@@ -382,10 +392,25 @@ def print_strategy_stats(filename, num_digits):
 
 def main():
     # TODO: See if there is a way to further dedupe the search_set
-    # calc_save_tree(num_digits=4, has_repeats=True, max_depth=100)
+    global STRAT
+
+    num_digits = 6
+    has_repeats = False
+    depth_loaded = 3
+    max_depth = 4
+
+    with open(f"strategies/output-{num_digits}-{has_repeats}-{depth_loaded}-entropy.json") as f:
+        STRAT = json.load(f)
+        print(STRAT)
+
+    start = time.time()
+    calc_save_tree(num_digits=num_digits, has_repeats=has_repeats, max_depth=max_depth)
+    end = time.time()
+    with open("temp.csv", "a+") as f:
+        f.write(f"{num_digits}, {has_repeats}, {max_depth}, {depth_loaded}, {end - start}\n")
 
     # max_depth = 100
-    # num_digits = 4
+    # num_digits = 3
     # has_repeats = True
     # filename = f'strategies/output-{num_digits}-{has_repeats}-{max_depth}-entropy.json'
     # print_strategy_stats(filename, num_digits)
