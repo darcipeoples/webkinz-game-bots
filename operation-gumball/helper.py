@@ -224,6 +224,7 @@ def unique_chars(s):
     return len(set(s)) == len(s)
 
 # TODO: if following time limit, need to shuffle the search set
+# TODO: could I stop searching if I hit the max possible entropy?
 def calc_best_next_guess(search_set, max_search_time, possible):
     if 1 <= len(possible) <= 2:
         return possible[0]
@@ -281,15 +282,15 @@ def dedupe_list(seq):
 STRAT = None
 def _calc_tree(num_digits, has_repeats, guesses, responses, depth, max_depth, possible, unused):
     global STRAT
-    if len(responses) >= 1:
-        if num_digits == 6 and max_depth == 3:
-            if not has_repeats and responses[0] in [(0,1),(0,2),(0,3),(0,4),(0,5),(1,0),(1,1),(1,2)]:
-                return {'remain': -1} # 6-False-3
-            if has_repeats and responses[0] in [(0,0)]:
-                return {'remain': -1} # 6-True-3
+    # if len(responses) >= 1:
+    #     if num_digits == 6 and max_depth == 100:
+    #         if has_repeats and responses[0] in [(0,0),(0,1)]:
+    #             return {'remain': -1}
+    #         if has_repeats and responses[0] == (0,2) and len(responses) >= 2 and responses[1] in [(0,0),(0,1),(0,2),(0,3),(0,4),(0,5),(0,6),(1,0),(1,1)]:
+    #             return {'remain': -1}
     CHECKPOINT_DEPTH = 2
     if num_digits == 6:
-        CHECKPOINT_DEPTH = 4
+        CHECKPOINT_DEPTH = 2
     if depth <= CHECKPOINT_DEPTH:
         print(f'Calculating _calc_tree({num_digits}, {has_repeats}, {guesses}, {responses}, {depth}, {max_depth}, {len(possible)}, {len(unused)})')
     if depth >= max_depth:
@@ -395,25 +396,25 @@ def main():
     global STRAT
 
     num_digits = 6
-    has_repeats = False
-    depth_loaded = 3
-    max_depth = 4
+    has_repeats = True
+    depth_loaded = 6
+    max_depth = 100
+    
+    # with open(f"strategies/output-{num_digits}-{has_repeats}-{depth_loaded}-entropy.json") as f:
+    #     STRAT = json.load(f)
+    #     print(STRAT)
 
-    with open(f"strategies/output-{num_digits}-{has_repeats}-{depth_loaded}-entropy.json") as f:
-        STRAT = json.load(f)
-        print(STRAT)
+    # start = time.time()
+    # calc_save_tree(num_digits=num_digits, has_repeats=has_repeats, max_depth=max_depth)
+    # end = time.time()
+    # with open("temp.csv", "a+") as f:
+    #     f.write(f"{num_digits}, {has_repeats}, {max_depth}, {depth_loaded}, {end - start}\n")
 
-    start = time.time()
-    calc_save_tree(num_digits=num_digits, has_repeats=has_repeats, max_depth=max_depth)
-    end = time.time()
-    with open("temp.csv", "a+") as f:
-        f.write(f"{num_digits}, {has_repeats}, {max_depth}, {depth_loaded}, {end - start}\n")
-
-    # max_depth = 100
-    # num_digits = 3
-    # has_repeats = True
-    # filename = f'strategies/output-{num_digits}-{has_repeats}-{max_depth}-entropy.json'
-    # print_strategy_stats(filename, num_digits)
+    max_depth = 100
+    num_digits = 6
+    has_repeats = True
+    filename = f'strategies/output-{num_digits}-{has_repeats}-{max_depth}-entropy.json'
+    print_strategy_stats(filename, num_digits)
 
 if __name__ == '__main__':
     main()
